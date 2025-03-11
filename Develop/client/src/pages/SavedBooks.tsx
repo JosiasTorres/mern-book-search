@@ -4,6 +4,7 @@ import { GET_ME } from '../utils/queries';
 import { REMOVE_BOOK } from '../utils/mutations';
 import { removeBookId } from '../utils/localStorage';
 import Auth from '../utils/auth';
+import type { Book } from '../models/Book'; // ✅ Importamos el tipo Book
 
 const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
@@ -38,18 +39,22 @@ const SavedBooks = () => {
       <Container>
         <h2 className='pt-5'>
           {userData.savedBooks.length
-            ? `Viewing ${userData.savedBooks.length} saved ${userData.savedBooks.length === 1 ? 'book' : 'books'}:`
+            ? `Viewing ${userData.savedBooks.length} saved ${
+                userData.savedBooks.length === 1 ? 'book' : 'books'
+              }:`
             : 'You have no saved books!'}
         </h2>
         <Row>
-          {userData.savedBooks.map((book) => (
+          {userData.savedBooks.map((book: Book) => ( // ✅ Tipado correcto
             <Col md='4' key={book.bookId}>
               <Card border='dark'>
                 {book.image && <Card.Img src={book.image} alt={`Cover of ${book.title}`} variant='top' />}
                 <Card.Body>
                   <Card.Title>{book.title}</Card.Title>
-                  <p className='small'>Authors: {book.authors?.join(', ')}</p>
-                  <Card.Text>{book.description}</Card.Text>
+                  <p className='small'>
+                    Authors: {book.authors && book.authors.length > 0 ? book.authors.join(', ') : 'Unknown Author'}
+                  </p>
+                  <Card.Text>{book.description || 'No description available'}</Card.Text>
                   <Button className='btn-block btn-danger' onClick={() => handleDeleteBook(book.bookId)}>
                     Delete this Book!
                   </Button>
