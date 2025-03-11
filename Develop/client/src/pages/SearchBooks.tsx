@@ -29,13 +29,13 @@ const SearchBooks = () => {
       if (!response.ok) throw new Error("Something went wrong!");
 
       const { items } = await response.json();
-      const bookData = items.map((book: GoogleAPIBook) => ({
+      const bookData: Book[] = items.map((book: GoogleAPIBook) => ({
         bookId: book.id,
-        authors: book.volumeInfo.authors || ["No author to display"],
+        authors: book.volumeInfo.authors ?? ["Unknown Author"], // ✅ Manejo seguro de `authors`
         title: book.volumeInfo.title,
-        description: book.volumeInfo.description,
-        image: book.volumeInfo.imageLinks?.thumbnail || "",
-        link: book.volumeInfo.infoLink,
+        description: book.volumeInfo.description ?? "No description available", // ✅ Manejo seguro de `description`
+        image: book.volumeInfo.imageLinks?.thumbnail ?? "", // ✅ Manejo seguro de `image`
+        link: book.volumeInfo.infoLink ?? "#", // ✅ Manejo seguro de `link`
       }));
 
       setSearchedBooks(bookData);
@@ -96,13 +96,15 @@ const SearchBooks = () => {
           {searchedBooks.length ? `Viewing ${searchedBooks.length} results:` : "Search for a book to begin"}
         </h2>
         <Row>
-          {searchedBooks.map((book) => (
+          {searchedBooks.map((book: Book) => ( // ✅ Tipado correcto en `.map()`
             <Col md="4" key={book.bookId}>
               <Card border="dark">
                 {book.image && <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant="top" />}
                 <Card.Body>
                   <Card.Title>{book.title}</Card.Title>
-                  <p className="small">Authors: {book.authors.join(", ")}</p>
+                  <p className="small">
+                    Authors: {book.authors?.length ? book.authors.join(", ") : "Unknown Author"}
+                  </p>
                   <Card.Text>{book.description}</Card.Text>
                   {Auth.loggedIn() && (
                     <Button
